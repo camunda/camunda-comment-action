@@ -13,7 +13,7 @@ jobs:
     name: Label Pull requests
     steps:
       - name: Comment
-        uses: camunda/comment-and-label-action@v1
+        uses: camunda/camunda-comment-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
