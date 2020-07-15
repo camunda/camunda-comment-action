@@ -1,20 +1,46 @@
+/*
+ * Copyright Camunda Services GmbH and/or licensed to Camunda Services GmbH
+ * under one or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information regarding copyright
+ * ownership. Camunda licenses this file to you under the Apache License,
+ * Version 2.0; you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * This is the main entrypoint to your Probot app
  * @param {import('probot').Application} app
  */
-module.exports = app => {
-  app.on(['pull_request.opened'], async context => {
+module.exports = (app) => {
+  app.on(["pull_request.opened"], async (context) => {
+    if (context.isBot) return;
     const issueContext = context.issue();
 
-    let membership = context.github.orgs.checkMembership({org: 'camunda', username: context.payload.sender.login}).then(res => {
-      if(res.status === 204) {
-         // const issueComment = context.issue({ body: 'Hey there colleague, thanks for creating a PR!' });
-         // return context.github.issues.createComment(issueComment)
-      }
-    }).catch(err => {
-      const issueComment = context.issue({ body: 'Thanks for opening this pull request! We will look into it soon, usually within 1 week.\nPlease have a look at our [contribution guidelines](https://github.com/camunda/camunda-bpm-platform/blob/master/CONTRIBUTING.md) to make the review process faster.' });
-      context.github.issues.addLabels(context.issue({ issue_number: issueContext.number, labels: ['needs triage'] }));
-      return context.github.issues.createComment(issueComment)
-    });
+    try {
+      await context.github.orgs.checkMembership({
+        org: "camunda",
+        username: context.payload.sender.login,
+      });
+    } catch (err) {
+      const issueComment = context.issue({
+        body:
+          "Thanks for opening this pull request! We will look into it soon, usually within 1 week.\nPlease have a look at our [contribution guidelines](https://github.com/camunda/camunda-bpm-platform/blob/master/CONTRIBUTING.md) to make the review process faster.",
+      });
+      context.github.issues.addLabels(
+        context.issue({
+          issue_number: issueContext.number,
+          labels: ["needs triage"],
+        })
+      );
+      context.github.issues.createComment(issueComment);
+    }
   });
-}
+};

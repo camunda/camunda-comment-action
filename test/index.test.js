@@ -42,7 +42,7 @@ describe('My Probot app', () => {
       .reply(200)
 
     // Receive a webhook event
-    await probot.receive({ name: 'issues', payload })
+    await probot.receive({ name: 'pull_request', payload })
   })
 
   afterEach(() => {
